@@ -3,12 +3,15 @@
 	TRAP	#1
 	ADDQ.W	#4,SP
 
-	
-	MOVE.L	#$FF8240,A0
-	MOVEQ.L	#15,D0
-	MOVE.L	#OLDPAL,A1
+
+; Save current set color palette from register 0
+;   $FF8240 16-bit
+; This ensures that we can restore the previous colors when the program ends
+		MOVE.L	#$FF8240,A0
+		MOVEQ.L	#15,D0
+		MOVE.L	#OLDPAL,A1
 CSAVE:	MOVE.W	(A0)+,(A1)+
-	DBF	D0,CSAVE	
+		DBF		D0,CSAVE
 
 	MOVE.L	$44E,A1
 	MOVE.L	#7999,D0
@@ -38,11 +41,12 @@ SYNC:	MOVE.W	#37,-(SP)
 	CMP	#0,D0
 	BEQ	SYNC
 
-	MOVE.L	#$FF8240,A0
-	MOVEQ.L	#15,D0
-	MOVE.L	#OLDPAL,A1
+; Restore previously stored color palette before terminating
+		MOVE.L	#$FF8240,A0
+		MOVEQ.L	#15,D0
+		MOVE.L	#OLDPAL,A1
 CLOAD:	MOVE.W	(A1)+,(A0)+
-	DBF	D0,CLOAD
+		DBF		D0,CLOAD
 
 	CLR.W	-(SP)
 	TRAP	#1
@@ -101,7 +105,7 @@ LOOP2:	MOVE.L	(A0),(A1)
 	ADD.L	#160,A0
 	ADD.L	#160,A1
 	DBF	D0,LOOP2
- 
+
 	ADD.L	#1,CNT3
 
 	MOVE.L	#GRAPICS+34,A0
