@@ -1,11 +1,10 @@
-	CLR.W	-(SP)
-	MOVE.W	#32,-(SP)
-	TRAP	#1
-	ADDQ.W	#4,SP
+; Got to supervisor mode, ignoring current stack
+		CLR.W	-(SP)
+		MOVE.W	#$20,-(SP)
+		TRAP	#1
+		ADDQ.W	#4,SP
 
-
-; Save current set color palette from register 0
-;   $FF8240 16-bit
+; Save current set color palette from register 0 at $FF8240 16-bit
 ; This ensures that we can restore the previous colors when the program ends
 		MOVE.L	#$FF8240,A0
 		MOVEQ.L	#15,D0
@@ -13,33 +12,33 @@
 CSAVE:	MOVE.W	(A0)+,(A1)+
 		DBF		D0,CSAVE
 
-	MOVE.L	$44E,A1
-	MOVE.L	#7999,D0
-CL:	CLR.L	(A1)+
-	DBF	D0,CL
+		MOVE.L	$44E,A1
+		MOVE.L	#7999,D0
+CL:		CLR.L	(A1)+
+		DBF	D0,CL
 
-	MOVE.L	#GRAPICS+2,-(SP)
-	MOVE.W	#6,-(SP)
-	TRAP	#14
-	ADDQ.W	#6,SP
+		MOVE.L	#GRAPICS+2,-(SP)
+		MOVE.W	#6,-(SP)
+		TRAP	#14
+		ADDQ.W	#6,SP
 
-	movem.l	GRAPICS+2,D0-D7
-	MOVEM.L	D0-D7,$FF8240
+		MOVEM.L	GRAPICS+2,D0-D7
+		MOVEM.L	D0-D7,$FF8240
 	
 SYNC:	MOVE.W	#37,-(SP)
-	TRAP	#14
-	ADDQ	#2,SP
+		TRAP	#14
+		ADDQ	#2,SP
 
-	MOVE.W	#$111,$FF8240
-	BSR	ROUT
-	MOVE.W	#$000,$FF8240
+		MOVE.W	#$111,$FF8240
+		BSR	ROUT
+		MOVE.W	#$000,$FF8240
 	
-	MOVE.W	#11,-(SP)
-	TRAP	#1
-	ADDQ	#2,SP
-
-	CMP	#0,D0
-	BEQ	SYNC
+; Check that key has not been pressed
+		MOVE.W	#$0B,-(SP)
+		TRAP	#1
+		ADDQ	#2,SP
+		CMP		#0,D0
+		BEQ		SYNC
 
 ; Restore previously stored color palette before terminating
 		MOVE.L	#$FF8240,A0
@@ -48,9 +47,9 @@ SYNC:	MOVE.W	#37,-(SP)
 CLOAD:	MOVE.W	(A1)+,(A0)+
 		DBF		D0,CLOAD
 
-	CLR.W	-(SP)
-	TRAP	#1
-
+; Clear stack and call GEMDOS, which implies TERM and terminates the program
+		CLR.W	-(SP)
+		TRAP	#1
 
 ROUT:	MOVE.L	#GRAPICS+34,A0
 	MOVE.L	$44E.W,A1
