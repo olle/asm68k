@@ -3,6 +3,7 @@
 		MOVE.W	#$20,-(SP)
 		TRAP	#1
 		ADDQ.W	#4,SP
+
 ; Save current set color palette from register 0 at $FF8240 16-bit
 ; This ensures that we can restore the previous colors when the program ends
 		MOVE.L	#$FF8240,A0
@@ -11,11 +12,14 @@
 CSAVE:	MOVE.W	(A0)+,(A1)+
 		DBF		D0,CSAVE
 
+
 		MOVE.L	$44E,A1
 		MOVE.L	#7999,D0
 CL:		CLR.L	(A1)+
-		DBF	D0,CL
+		DBF		D0,CL
 
+; Set the color palette from our loaded graphics using XBIOS (trap #14)
+; Colors are stored in PI1 files, as a 32-byte array starting at a 2-byte offset
 		MOVE.L	#GRAPICS+2,-(SP)
 		MOVE.W	#6,-(SP)
 		TRAP	#14
@@ -23,15 +27,13 @@ CL:		CLR.L	(A1)+
 
 		MOVEM.L	GRAPICS+2,D0-D7
 		MOVEM.L	D0-D7,$FF8240
-	
+
+; Wait for video (vsync) and then branch to the routine for drawing the balls
 SYNC:	MOVE.W	#37,-(SP)
 		TRAP	#14
 		ADDQ	#2,SP
+		BSR		ROUT
 
-		MOVE.W	#$111,$FF8240
-		BSR	ROUT
-		MOVE.W	#$000,$FF8240
-	
 ; Check that key has not been pressed
 		MOVE.W	#$0B,-(SP)
 		TRAP	#1
