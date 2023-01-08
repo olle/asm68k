@@ -3,7 +3,6 @@
 		MOVE.W	#$20,-(SP)
 		TRAP	#1
 		ADDQ.W	#4,SP
-
 ; Save current set color palette from register 0 at $FF8240 16-bit
 ; This ensures that we can restore the previous colors when the program ends
 		MOVE.L	#$FF8240,A0
@@ -575,7 +574,6 @@ CNT20:	DC.L	7
 
 OLDPAL:	DS.W	16
 
-
-GRAPICS:	INCBIN	SINEBALL.PI1
-SINE:		INCBIN	CSINE.SIN
-	EVEN
+GRAPICS:	INCBIN	C:\ASM68K\MANYBALL\SINEBALL.PI1
+SINE:		INCBIN	C:\ASM68K\MANYBALL\CSINE.SIN
+		EVEN
